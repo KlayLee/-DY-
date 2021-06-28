@@ -45,7 +45,7 @@ spillover <- function(func, est, n.ahead, no.corr = F) {
 #' @return spillover_table object
 #' @author Tomas Krehlik <tomas.krehlik@@gmail.com>
 
-spilloverFft <- function(func, est, n.ahead, partition, no.corr = F) {
+spilloverDwt <- function(func, est, n.ahead, partition, no.corr = F) {
 	f <- get( func )
 	new_p <- getPartition( partition, n.ahead )
 	
@@ -84,5 +84,5 @@ spilloverFft <- function(func, est, n.ahead, partition, no.corr = F) {
 #' @author Tomas Krehlik <tomas.krehlik@@gmail.com>
 
 spilloverLJH21 <- function(est, n.ahead = 100, no.corr, partition) {
-	return(spilloverFft("fftGenFEVD", est, n.ahead, partition, no.corr = no.corr))
+	return(spilloverDwt("dwtGenFEVD", est, n.ahead, partition, no.corr = no.corr))
 }
