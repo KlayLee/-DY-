@@ -202,7 +202,7 @@ genFEVD <- function(est, n.ahead = 100, no.corr = F) {
 	return(tab)
 }
 
-#' Compute a FFT transform of forecast error vector decomposition in generalised VAR scheme.
+#' Compute a DWT transform of forecast error vector decomposition in generalised VAR scheme.
 #'
 #' This function computes the decomposition of standard forecast error vector decomposition given the 
 #' estimate of the VAR. The decomposition is done according to the Stiassny (1996)
@@ -218,7 +218,7 @@ genFEVD <- function(est, n.ahead = 100, no.corr = F) {
 #' @import vars
 #' @import urca
 #' @import stats
-fftGenFEVD <- function(est, n.ahead = 100, no.corr = F, range) {
+dwtGenFEVD <- function(est, n.ahead = 100, no.corr = F, range) {
 	# Warn if the n.ahead is too low.
 	if (n.ahead < 100) {
 		warning("The frequency decomposition works with unconditional IRF. You have opted for 
@@ -229,9 +229,9 @@ fftGenFEVD <- function(est, n.ahead = 100, no.corr = F, range) {
 	# coefficients thats why the name Phi.)
 	Phi <- irf(est, n.ahead = n.ahead, boot = F, ortho = F)
 	# Get the Fourier transform of the impulse responses
-	fftir <- lapply(Phi$irf, function(i) apply(i, 2, fft))
+	dwtir <- lapply(Phi$irf, function(i) apply(i, 2, dwt))
 	# Transform them into shape we work with
-	fftir <- lapply(1:(n.ahead+1), function(j) sapply(fftir, function(i) i[j,]))
+	dwtir <- lapply(1:(n.ahead+1), function(j) sapply(dwtir, function(i) i[j,]))
 	# Estimate the covariance matrix
 	Sigma <- t(residuals(est))%*%residuals(est) / nrow(residuals(est))
 	# Remove the individual elements, if needed.
@@ -246,14 +246,14 @@ fftGenFEVD <- function(est, n.ahead = 100, no.corr = F, range) {
 	# only standardize by variance from some frequency to 2*pi.
 	denom <- diag(
 		Re(
-			Reduce('+', lapply(fftir, function(i) 
+			Reduce('+', lapply(dwtir, function(i) 
 				i %*% Sigma %*% t( Conj(i) ) / (n.ahead + 1)
 				)[range]
 			)
 		)
 		)
 	# Compute the enumerator of the equation
-	enum <- lapply(fftir, function(i) 
+	enum <- lapply(dwtir, function(i) 
 		( abs( i %*% Sigma ) )^2 / (n.ahead+1)
 		)
 	# Compute the fevd table be dividing the individual elements
